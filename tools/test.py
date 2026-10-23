@@ -157,6 +157,18 @@ def t_mode():
         shutil.rmtree(d, ignore_errors=True)
 
 
+def t_manual():
+    d = ROOT / "说明书"
+    need = ["00-先读我.md", "01-三种模式怎么选.md", "02-教师模式.md",
+            "03-伴学模式.md", "04-突击模式.md", "05-笔记与档案.md",
+            "06-复习与遗忘.md", "07-常见问题.md"]
+    missing = [f for f in need if not (d / f).exists()]
+    if missing:
+        return False, "缺 " + "、".join(missing)
+    total = sum(len((d / f).read_text(encoding="utf-8").splitlines()) for f in need)
+    return total > 400, f"{len(need)} 份 / {total} 行"
+
+
 def t_placeholder():
     p = subprocess.run([PY, str(ROOT / "tools" / "check_placeholders.py"), str(ROOT / "ai-study")],
                        capture_output=True, text=True, encoding="utf-8")
@@ -177,6 +189,7 @@ case("检查点可恢复", t_checkpoint)
 case("复习间隔与逾期", t_interval)
 case("压缩机制", t_compact)
 case("模式字段", t_mode)
+case("说明书齐全", t_manual)
 case("无占位符残留", t_placeholder)
 case("无断链", t_refs)
 

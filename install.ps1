@@ -23,5 +23,10 @@ if ($LASTEXITCODE -ne 0) {
 if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
 New-Item -ItemType Directory -Force -Path (Split-Path $dst) | Out-Null
 Copy-Item -Recurse -Force $src $dst
+$manual = Join-Path $PSScriptRoot '说明书'
+if (Test-Path $manual) {
+  Copy-Item -Recurse -Force $manual (Join-Path $dst '说明书')
+  Write-Output 'installed manual (说明书/)'
+}
 Write-Output "installed -> $dst"
 Get-ChildItem -Recurse -File $dst | ForEach-Object { $_.FullName.Substring($dst.Length + 1) }
