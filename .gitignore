@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 临时与日志
+*.log
+*.tmp
+~$*
+
+# 体积大的原始学习资料（截图/PDF）默认不入库，需要时再放开
+# assets/
+
+# 图表生成物（archify 产物，可随时重渲染）
+.archify/
+
+# 学习档案是产物，不放开发仓库（默认在 ~/学习档案/）
+学习档案/
+
+# 视频成片不入库（体积大，可由 tools/make_video.py 重新生成）
+*.mp4

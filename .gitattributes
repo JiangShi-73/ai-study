@@ -1,0 +1,9 @@
+# 统一按 LF 存储，避免 Windows 下 autocrlf 带来的整文件改动
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.xlsx binary
