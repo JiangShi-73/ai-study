@@ -169,6 +169,31 @@ def t_manual():
     return total > 400, f"{len(need)} 份 / {total} 行"
 
 
+def t_img():
+    d = Path(tempfile.mkdtemp())
+    try:
+        import subprocess
+        img = d / "t.png"
+        make = (
+            "from PIL import Image, ImageDraw;"
+            f"im=Image.new('RGB',(400,300),'white');"
+            "ImageDraw.Draw(im).rectangle([50,50,200,200],outline='black',width=2);"
+            f"im.save(r'{img}')"
+        )
+        subprocess.run([PY, "-c", make], check=True, capture_output=True)
+        crop = subprocess.run([PY, str(ROOT / "tools" / "img.py"), "crop", str(img),
+                               str(d / "c.png"), "--box", "40,40,210,210"],
+                              capture_output=True)
+        mark = subprocess.run([PY, str(ROOT / "tools" / "img.py"), "mark", str(img),
+                               str(d / "m.png"), "--rect", "50,50,200,200",
+                               "--text", "10,10,测试"], capture_output=True)
+        ok = crop.returncode == 0 and mark.returncode == 0 \
+            and (d / "c.png").exists() and (d / "m.png").exists()
+        return ok, "裁剪 + 标注"
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def t_placeholder():
     p = subprocess.run([PY, str(ROOT / "tools" / "check_placeholders.py"), str(ROOT / "ai-study")],
                        capture_output=True, text=True, encoding="utf-8")
@@ -190,6 +215,7 @@ case("复习间隔与逾期", t_interval)
 case("压缩机制", t_compact)
 case("模式字段", t_mode)
 case("说明书齐全", t_manual)
+case("图片工具", t_img)
 case("无占位符残留", t_placeholder)
 case("无断链", t_refs)
 
