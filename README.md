@@ -104,7 +104,6 @@ powershell -ExecutionPolicy Bypass -File install.ps1     # Windows
 
 ## 想直接看格式
 
-不用装，直接翻：
 
 | 想看什么 | 打开 |
 |---|---|
@@ -112,15 +111,6 @@ powershell -ExecutionPolicy Bypass -File install.ps1     # Windows
 | 突击的知识点脉络 | [示例/_demo/突击/06-知识点脉络.md](示例/_demo/突击/06-知识点脉络.md) |
 | 突击的分值优先级矩阵 | [示例/_demo/突击/07-考点分值.md](示例/_demo/突击/07-考点分值.md) |
 
-四份演示都过了 `lint`，可以直接当模板抄。
-
-**介绍视频**：[ai-study-介绍.mp4](视频/ai-study-介绍.mp4)（98 秒，全字幕，无声可看）
-
-[![介绍视频](视频/剧照/01-三种带法.png)](视频/ai-study-介绍.mp4)
-
-分镜与改稿入口：[介绍视频-脚本.md](视频/介绍视频-脚本.md)。
-视频由 `tools/make_video.py` 生成，改文案后重跑即可，不需要剪辑软件。
-另外两段可交互动画：[三种模式.html](视频/三种模式.html) · [一节课怎么走.html](视频/一节课怎么走.html)。
 
 ## 它不做什么
 
