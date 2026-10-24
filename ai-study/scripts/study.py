@@ -951,11 +951,25 @@ def _tail_path(root: Path) -> Path:
     return root / CUR_DIR / TAIL_FILE
 
 
+TAIL_KEEP = 5
+
+
+def _tail_blocks(text: str):
+    """把尾巴文件切成条目，最新的在前面。"""
+    parts = re.split(r"^## ", text, flags=re.M)
+    return ["## " + x for x in parts[1:]]
+
+
 def _parse_tail(root: Path):
+    """返回最新一条尾巴。"""
     f = _tail_path(root)
     if not f.exists():
         return None
-    return {"path": f, "info": parse_kv_block(read_text(f), limit=20)}
+    blocks = _tail_blocks(read_text(f))
+    if not blocks:
+        return None
+    return {"path": f, "info": parse_kv_block(blocks[0], limit=20),
+            "count": len(blocks)}
 
 
 def cmd_tail(args) -> int:
@@ -969,24 +983,39 @@ def cmd_tail(args) -> int:
     stamp = now.strftime("%Y-%m-%d %H:%M")
 
     old = {}
+    blocks = []
     if f.exists():
-        old = parse_kv_block(read_text(f), limit=20)
+        body_old = read_text(f)
+        blocks = _tail_blocks(body_old)
+        if blocks:
+            old = parse_kv_block(blocks[0], limit=20)
 
     def pick(arg, key):
         v = getattr(args, key, None)
         return v if v else old.get(arg, "（无）")
 
-    body = (
-        "# 对话尾巴\n\n"
-        "> 上一次对话留下的东西。**新对话先读这一份。**\n\n"
-        f"**更新**：{stamp}\n"
+    entry = (
+        f"## {stamp}\n\n"
         f"**这次聊到**：{pick('这次聊到', 'note')}\n"
         f"**学生最后说的**：{pick('学生最后说的', 'last')}\n"
         f"**没落盘的**：{pick('没落盘的', 'pending')}\n"
         f"**下次开场第一句**：{pick('下次开场第一句', 'next')}\n"
     )
-    f.write_text(body, encoding="utf-8")
-    print(f"已更新对话尾巴：{stamp}")
+    kept = [entry] + blocks
+    dropped = max(0, len(kept) - args.keep)
+    kept = kept[:args.keep]
+
+    head = (
+        "# 对话尾巴\n\n"
+        "> 每次对话结束时追加一条，**最新的在最上面**。"
+        f"保留最近 {args.keep} 条。\n"
+        "> 新对话先读第一条就够了；往下翻能看到「这几天是不是一直卡在同一个地方」。\n\n"
+    )
+    f.write_text(head + "\n".join(kept), encoding="utf-8")
+    msg = f"已追加对话尾巴：{stamp}（共 {len(kept)} 条"
+    if dropped:
+        msg += f"，挤掉最旧 {dropped} 条"
+    print(msg + "）")
     return 0
 
 
@@ -1271,6 +1300,7 @@ def main() -> int:
     p.add_argument("--last", default=None, help="学生最后说的话")
     p.add_argument("--pending", default=None, help="没落盘的事")
     p.add_argument("--next", default=None, help="下次开场第一句")
+    p.add_argument("--keep", type=int, default=5, help="保留最近几条（默认 5）")
     p.set_defaults(func=cmd_tail)
 
     p = sub.add_parser("resume", help="打印交接卡，可贴给新对话")

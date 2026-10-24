@@ -205,7 +205,17 @@ def t_resume():
         has_tail = "上次对话：聊到 A" in out
         code2, pack = run("resume", str(d))
         ok_pack = "我要继续学" in pack and "不要问我" in pack
-        return entry and has_tail and ok_pack, "入口文件 + 尾巴 + 交接卡"
+        # 追加式 + 只留最近 5 条
+        for i in range(2, 8):
+            run("tail", str(d), "--note", f"第 {i} 次", "--next", f"开场 {i}")
+        body = (d / "_进行中" / "对话尾巴.md").read_text(encoding="utf-8")
+        n_entries = body.count("\n## ")
+        newest = body.split("\n## ")[1].splitlines()[0]
+        rotated = n_entries == 5 and "第 7 次" in body and newest.strip()[:4] == "2026"
+        code3, out3 = run("brief", str(d))
+        latest_ok = "第 7 次" in out3
+        return entry and has_tail and ok_pack and rotated and latest_ok, \
+            "入口 + 尾巴 + 交接卡 + 轮转（留 5 条）"
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
