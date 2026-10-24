@@ -121,6 +121,7 @@ references 是执行规范，说明书才是人话。
 | 我给你一本书 / 这个视频 / 存进资料库 | 知识库登记（登记完必须回一句编号） | references/core/knowledge-base.md |
 | 画个图 / 看不懂 / 这图什么意思 | 配图（先 Mermaid 确认结构，再渲染） | references/core/visuals.md |
 | **把这张图存下来 / 这张图帮我留一下** | **无条件保存**，原样进 assets/，回一句路径 | references/core/images.md §6 |
+| 继续学 / 接着上次 / 上个对话太长了（**换对话**） | 冷启动：先 brief，**不要问「上次讲到哪」** | references/core/resume.md |
 | 这题配图 / 题干有图 | 截下来存 assets/，必要时标注 | references/core/images.md |
 | 你帮我看看这个视频 | **先要截图**，截不了才走抽帧+转录 | references/core/knowledge-base.md §8 |
 | 换个强模型 / 这活太占地方 / 先放一边问 | 外包：五条触发 + 交接包 | references/core/delegation.md |
@@ -190,12 +191,13 @@ references 是执行规范，说明书才是人话。
   01-学习路径.md    大点总览 / 详解 / 完成标准 / 取舍
   02-每日笔记/      记录NN-YYYY-MM-DD-标题.md             ← 只追加，禁改
   03-板块笔记/      内存与指针.md 等                       ← 可重写，复习单位
+  从这里开始.md     给任何 AI 的入口：三步恢复 + 文件说明    ← 换对话靠它
   04-知识库/        索引.md + 资料/KBnn.md                 ← 资料清单 + 用法，不存原文
   05-错题.md        错题本（伴学 / 突击必用）                   ← 原始错题，提炼进 03
   06-知识点脉络.md  脉络梳理（突击模式）                        ← 依赖关系图 + 分组
   07-考点分值.md    分值统计（突击模式）                        ← 优先级矩阵
   02-每日笔记/_归档/ 批次-NN/                              ← 压缩后的旧记录，原样保留 + 总结
-  _进行中/          当前课.md                               ← 一节课的检查点，归档后清掉
+  _进行中/          当前课.md / 对话尾巴.md                 ← 检查点 + 上次对话的尾巴
   assets/          渲染图、截图。记录里用 ../assets/xxx.png 引用
 ```
 
@@ -234,6 +236,7 @@ study.py demo-init 示例/_demo/<学科> --subject <学科名>
 | references/core/cli.md | **接口**：study.py 命令表、退出码、使用纪律 |
 | references/core/output.md | **输出格式**：结论先行、一屏原则、禁止项、表格什么时候用 |
 | references/core/images.md | **图**：必须留图的五种情况、存哪怎么命名、什么时候该标注、学生要求存图时无条件保存 |
+| references/core/resume.md | **冷启动**：换对话怎么接上、头 60 秒读什么、开场三句、收尾写尾巴 |
 | references/core/profile.md | 学生画像：四个触发、git 式版本、怎么向学生对账 |
 | references/core/knowledge-base.md | 知识库：告知、登记、五步处理、锚点三件套、视频指针 |
 | references/core/review.md | 复习：货架、展示式流程、四层主动权、建议间隔 |

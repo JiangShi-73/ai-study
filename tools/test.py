@@ -194,6 +194,22 @@ def t_img():
         shutil.rmtree(d, ignore_errors=True)
 
 
+def t_resume():
+    d = Path(tempfile.mkdtemp())
+    try:
+        run("init", str(d), "--subject", "x")
+        entry = (d / "从这里开始.md").exists()
+        run("tail", str(d), "--note", "聊到 A", "--last", "先这样",
+            "--next", "今天开大点 0")
+        code, out = run("brief", str(d))
+        has_tail = "上次对话：聊到 A" in out
+        code2, pack = run("resume", str(d))
+        ok_pack = "我要继续学" in pack and "不要问我" in pack
+        return entry and has_tail and ok_pack, "入口文件 + 尾巴 + 交接卡"
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def t_placeholder():
     p = subprocess.run([PY, str(ROOT / "tools" / "check_placeholders.py"), str(ROOT / "ai-study")],
                        capture_output=True, text=True, encoding="utf-8")
@@ -216,6 +232,7 @@ case("压缩机制", t_compact)
 case("模式字段", t_mode)
 case("说明书齐全", t_manual)
 case("图片工具", t_img)
+case("跨对话继承", t_resume)
 case("无占位符残留", t_placeholder)
 case("无断链", t_refs)
 

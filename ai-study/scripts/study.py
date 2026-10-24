@@ -30,6 +30,8 @@ except Exception:
 KB_DIR = "04-知识库"
 CUR_DIR = "_进行中"
 CUR_FILE = "当前课.md"
+TAIL_FILE = "对话尾巴.md"
+ENTRY_FILE = "从这里开始.md"
 BOARD_DIR = "03-板块笔记"
 DAY_DIR = "02-每日笔记"
 ARCHIVE = "00-学习档案.md"
@@ -227,6 +229,34 @@ def make_skeleton(root: Path, subject: str, today: dt.date, demo: bool) -> None:
         body = fill_template(read_text(tpl / tplname), subject, today)
         dst.write_text(banner + body if rel == ARCHIVE else body, encoding="utf-8")
 
+    entry = root / ENTRY_FILE
+    if not entry.exists():
+        entry.write_text(
+            "# 从这里开始\n\n"
+            "这个文件夹是一份 **AI 带学档案**。换对话、换 AI、隔三个月回来——"
+            "只要把这个路径给它，就能接着学。\n\n"
+            "## 三步恢复（给 AI 看的）\n\n"
+            "1. 读 `00-学习档案.md`：契约（含**模式**）、画像、状态看板\n"
+            "2. 读 `_进行中/对话尾巴.md`：上次聊到哪、下次第一句说什么\n"
+            "3. 跑 `python <技能目录>/scripts/study.py brief <本目录>` 拿当前状态\n\n"
+            "**不要问学生「上次讲到哪」——档案里有。** 冲突时以档案为准，但要指出来。\n\n"
+            "## 文件说明\n\n"
+            "| 文件 | 是什么 |\n|---|---|\n"
+            "| `00-学习档案.md` | 契约 / 画像 / 看板 / 记录索引，每次开课必读 |\n"
+            "| `01-学习路径.md` | 大点、完成标准、日历 |\n"
+            "| `02-每日笔记/` | 每节课一条，只追加 |\n"
+            "| `03-板块笔记/` | 知识点，复习单位 |\n"
+            "| `04-知识库/` | 教材 / 课程 / 题库清单 |\n"
+            "| `05-错题.md` | 原始错题（伴学 / 突击） |\n"
+            "| `06-知识点脉络.md` | 考点依赖（突击） |\n"
+            "| `07-考点分值.md` | 优先级矩阵（突击） |\n"
+            "| `_进行中/` | 未归档的课 + 上次对话的尾巴 |\n"
+            "| `assets/` | 截图、题图、导图 |\n\n"
+            "## 交接卡片\n\n"
+            "跑 `python <技能目录>/scripts/study.py resume <本目录>` "
+            "会打印一段可以直接贴给新对话的文字。\n",
+            encoding="utf-8")
+
     kb_src = tpl / "04-知识库-索引.md"
     kb_dst = root / KB_DIR / "索引.md"
     if kb_src.exists() and not kb_dst.exists():
@@ -416,6 +446,14 @@ def cmd_brief(args) -> int:
               f"停在 {info.get('当前步骤', '?')}")
         print(f"   最后更新 {info.get('最后更新', '?')}")
         print(f"   先问学生：接着上，还是重新开始？")
+        print("")
+
+    tail = _parse_tail(root)
+    if tail:
+        info = tail["info"]
+        print(f"🧵 上次对话：{info.get('这次聊到', '（无）')}")
+        if info.get("下次开场第一句"):
+            print(f"   开场白：{info.get('下次开场第一句')}")
         print("")
 
     print(f"今天 {dt.date.today().isoformat()} · 第 {n} 次课" + ("（演示档案）" if is_demo(root) else ""))
@@ -908,6 +946,104 @@ def cmd_compact(args) -> int:
     return 0
 
 
+
+def _tail_path(root: Path) -> Path:
+    return root / CUR_DIR / TAIL_FILE
+
+
+def _parse_tail(root: Path):
+    f = _tail_path(root)
+    if not f.exists():
+        return None
+    return {"path": f, "info": parse_kv_block(read_text(f), limit=20)}
+
+
+def cmd_tail(args) -> int:
+    """写「对话尾巴」：这次聊到哪、下次第一句说什么。换对话靠它接上。"""
+    root = Path(args.dir).expanduser().resolve()
+    if not (root / ARCHIVE).exists():
+        die(f"找不到 {ARCHIVE}")
+    f = _tail_path(root)
+    f.parent.mkdir(parents=True, exist_ok=True)
+    now = dt.datetime.now()
+    stamp = now.strftime("%Y-%m-%d %H:%M")
+
+    old = {}
+    if f.exists():
+        old = parse_kv_block(read_text(f), limit=20)
+
+    def pick(arg, key):
+        v = getattr(args, key, None)
+        return v if v else old.get(arg, "（无）")
+
+    body = (
+        "# 对话尾巴\n\n"
+        "> 上一次对话留下的东西。**新对话先读这一份。**\n\n"
+        f"**更新**：{stamp}\n"
+        f"**这次聊到**：{pick('这次聊到', 'note')}\n"
+        f"**学生最后说的**：{pick('学生最后说的', 'last')}\n"
+        f"**没落盘的**：{pick('没落盘的', 'pending')}\n"
+        f"**下次开场第一句**：{pick('下次开场第一句', 'next')}\n"
+    )
+    f.write_text(body, encoding="utf-8")
+    print(f"已更新对话尾巴：{stamp}")
+    return 0
+
+
+def cmd_resume(args) -> int:
+    """打印一张可以直接贴给新对话的交接卡。"""
+    root = Path(args.dir).expanduser().resolve()
+    if not (root / ARCHIVE).exists():
+        die(f"找不到 {ARCHIVE}")
+    ap = read_text(root / ARCHIVE)
+    board = {}
+    for line in ap.splitlines():
+        m = re.match(r"^\|\s*\**([^|]+?)\**\s*\|\s*(.*?)\s*\|\s*$", line)
+        if m and not set(m.group(1)) <= set("-: "):
+            board[m.group(1).strip()] = m.group(2).strip()
+    recs = [r for r in collect_records(root) if r[0] is not None and r[0] >= 1]
+    tail = (_parse_tail(root) or {}).get("info", {})
+    cur = _parse_cur(root)
+
+    if args.path_only:
+        print(str(root))
+        return 0
+
+    pack = root / "_进行中" / "当前课.md"
+    lines = []
+    lines.append("=" * 56)
+    lines.append("把下面这段贴进新对话即可继续（或者直接说：读这个文件夹继续）")
+    lines.append("=" * 56)
+    lines.append("")
+    lines.append(f"我要继续学「{root.name}」，档案在：{root}")
+    lines.append("")
+    lines.append(f"模式：{board.get('模式', '教师')}")
+    lines.append(f"当前大点：{board.get('当前大点', '—')}")
+    lines.append(f"实际位置：{board.get('实际位置', '—')}")
+    lines.append(f"进度：{board.get('进度判断', '—')}")
+    lines.append(f"已上正课：{len(recs)} 次" + (f"，最后一次 {recs[-1][1]}" if recs else "（还没上过正课）"))
+    if tail:
+        lines.append("")
+        lines.append("上次对话：" + tail.get("这次聊到", "（无）"))
+        lines.append("学生最后说的：" + tail.get("学生最后说的", "（无）"))
+        if tail.get("没落盘的") not in (None, "", "（无）"):
+            lines.append("还没落盘的：" + tail["没落盘的"])
+        if tail.get("下次开场第一句"):
+            lines.append("上次说的开场白：" + tail["下次开场第一句"])
+    if cur:
+        lines.append("")
+        lines.append(f"⚠️ 有一节没归档的课：停在 {cur['info'].get('当前步骤', '?')}，"
+                     f"最后更新 {cur['info'].get('最后更新', '?')}")
+    lines.append("")
+    lines.append("请先读同目录的「从这里开始.md」，再跑：")
+    lines.append(f"  python <技能目录>/scripts/study.py brief {root}")
+    lines.append("")
+    lines.append("**不要问我「上次讲到哪」——档案里有。**")
+    lines.append("=" * 56)
+    print("\n".join(lines))
+    return 0
+
+
 def cmd_checkpoint(args) -> int:
     """记录/更新「进行中的课」。归档完成后用 --clear 清掉。"""
     root = Path(args.dir).expanduser().resolve()
@@ -1128,6 +1264,19 @@ def main() -> int:
     p.add_argument("dir", help="计划所在的根目录，如 ~/学习档案")
     p.add_argument("--write", action="store_true", help="写一份 索引.md 到该目录")
     p.set_defaults(func=cmd_projects)
+
+    p = sub.add_parser("tail", help="写对话尾巴（换对话靠它接上）")
+    p.add_argument("dir")
+    p.add_argument("--note", default=None, help="这次聊到哪")
+    p.add_argument("--last", default=None, help="学生最后说的话")
+    p.add_argument("--pending", default=None, help="没落盘的事")
+    p.add_argument("--next", default=None, help="下次开场第一句")
+    p.set_defaults(func=cmd_tail)
+
+    p = sub.add_parser("resume", help="打印交接卡，可贴给新对话")
+    p.add_argument("dir")
+    p.add_argument("--path-only", action="store_true")
+    p.set_defaults(func=cmd_resume)
 
     p = sub.add_parser("compact", help="压缩：满 N 条时把最远的若干条移进 _归档并留总结")
     p.add_argument("dir")

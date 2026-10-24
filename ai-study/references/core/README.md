@@ -13,6 +13,7 @@
 | [cli.md](cli.md) | **接口** | `study.py` 每个命令干什么、退出码含义、哪个模式用哪个 |
 | [output.md](output.md) | **输出格式** | 结论先行、一屏、标题分段、代码块可复制、结尾一句可执行的 |
 | [images.md](images.md) | **图** | 什么时候必须留图、怎么存、什么时候该在图上标注 |
+| [resume.md](resume.md) | **冷启动** | 换对话怎么接上：头 60 秒读什么、开场说什么、收尾必须写尾巴 |
 | [profile.md](profile.md) | 画像 | T0–T3 触发、git 式版本、怎么向学生对账 |
 | [knowledge-base.md](knowledge-base.md) | 知识库 | 资料清单 + 用法，不存原文；视频只存指针 |
 | [review.md](review.md) | 复习 | 货架、四层主动权、建议间隔 |
