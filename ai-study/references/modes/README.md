@@ -18,7 +18,7 @@
 
 | 文档 | 作用 | 为什么共用 |
 |---|---|---|
-| [files.md](../core/files.md) | 五份档案的写入规则 | 换模式不该换档案 |
+| [files.md](../core/files.md) | 档案结构与写入规则 | 换模式不该换档案 |
 | [cli.md](../core/cli.md) | study.py 命令表与退出码 | 三种模式调同一批命令 |
 | [output.md](../core/output.md) | 输出格式规范 | 学生是在屏幕前读你 |
 | [profile.md](../core/profile.md) | 画像 T0–T3 触发与 git 式版本 | 学生还是那个学生 |

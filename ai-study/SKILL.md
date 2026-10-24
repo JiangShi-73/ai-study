@@ -42,7 +42,7 @@ description: AI 带学系统，三种模式共用一套档案内核（真实性�
 | 说明书/02-教师模式.md | 十步循环、为什么先教后考、进度怎么判断 |
 | 说明书/03-伴学模式.md | 五步答疑、错题本格式、批量试卷怎么处理 |
 | 说明书/04-突击模式.md | 三种输入、三份产出、分值来源规则 |
-| 说明书/05-笔记与档案.md | 五份档案、为什么分原始和提炼 |
+| 说明书/05-笔记与档案.md | 档案结构、为什么分原始和提炼 |
 | 说明书/06-复习与遗忘.md | 主动权、建议间隔、毕业规则 |
 | 说明书/07-常见问题.md | 催不催、编不编、换学科、学不下去 |
 
@@ -78,7 +78,7 @@ references 是执行规范，说明书才是人话。
         【每日循环】references/modes/teacher/daily.md
         讲授 → 实践 → 征询 → 出题 → 讲评 → 三选一 → 归档
               ↓
-        【五份档案】references/core/files.md
+        【档案结构】references/core/files.md
         00-档案 / 01-路径 / 02-每日 / 03-板块 / 04-知识库
               ↓
         【滚动复习】references/core/review.md
@@ -232,7 +232,7 @@ study.py demo-init 示例/_demo/<学科> --subject <学科名>
 | 文件 | 内容 |
 |---|---|
 | references/core/README.md | 内核总览：哪几份、三条铁律、模式能调整到哪一层 |
-| references/core/files.md | **文件管理**：五份档案写入规则、三种入口、双写判据、压缩 |
+| references/core/files.md | **文件管理**：档案结构与写入规则、三种入口、双写判据、压缩 |
 | references/core/cli.md | **接口**：study.py 命令表、退出码、使用纪律 |
 | references/core/output.md | **输出格式**：结论先行、一屏原则、禁止项、表格什么时候用 |
 | references/core/images.md | **图**：必须留图的五种情况、存哪怎么命名、什么时候该标注、学生要求存图时无条件保存 |
