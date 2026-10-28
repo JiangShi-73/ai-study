@@ -1,0 +1,41 @@
+# ── 白名单：只跟踪本项目的内容 ──
+# 工作区里还有别的项目（实验报告、思考题、学习档案…），默认全部忽略。
+/*
+!/ai-study/
+!/说明书/
+!/示例/
+!/图/
+!/tools/
+!/docs/
+!README.md
+!LICENSE
+!CHANGELOG.md
+!install.ps1
+!.gitignore
+!.gitattributes
+
+# ── 项目内部的忽略 ──
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+~$*
+
+# 图表生成物（archify 产物，可随时重渲染）
+.archify/
+
+# 视频成片（体积大，可重新生成）
+*.mp4
+
+# PDF 取图的临时页
+_pdf_pages/
+
+# 学习档案是产物，默认在 ~/学习档案/
+学习档案/
